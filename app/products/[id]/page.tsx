@@ -16,7 +16,16 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     <div className="min-h-screen gradient-shell noise">
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
         <div className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-full bg-ink-900"></div>
+          <div className="h-11 w-11 overflow-hidden rounded-full border border-oat-200 bg-white shadow-soft">
+            <Image
+              src="/images/revya-logo.png"
+              alt="Revya logo"
+              width={64}
+              height={64}
+              className="h-full w-full object-cover"
+              priority
+            />
+          </div>
           <div>
             <p className="font-display text-lg tracking-tight">Revya</p>
             <p className="text-xs uppercase tracking-[0.2em] text-ink-600">Modern Essentials</p>
