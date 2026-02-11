@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CartButton from "@/components/CartButton";
-import { brandStats, categories, priceRanges, products, sizes } from "@/lib/products";
+import { useCart } from "@/components/CartProvider";
+import { brandStats, categories, priceRanges, sizes } from "@/lib/products";
+import type { Product } from "@/lib/products";
 
 const badges: Record<string, string> = {
   New: "bg-lime-500 text-ink-900",
@@ -16,10 +18,27 @@ const badges: Record<string, string> = {
 const formatPrice = (price: number) => `$${price}`;
 
 export default function HomePage() {
+  const { user, loading } = useCart();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<(typeof categories)[number]>("All");
   const [size, setSize] = useState<(typeof sizes)[number]>("All");
   const [priceRange, setPriceRange] = useState<(typeof priceRanges)[number]["label"]>("All");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const response = await fetch("/api/products");
+        const data = await response.json();
+        setProducts(data.products || []);
+      } finally {
+        setLoadingProducts(false);
+      }
+    }
+
+    loadProducts();
+  }, []);
 
   const filtered = useMemo(() => {
     const range = priceRanges.find((item) => item.label === priceRange) ?? priceRanges[0];
@@ -63,6 +82,25 @@ export default function HomePage() {
           <Link href="/support" className="hover:text-ink-900">Support</Link>
         </div>
         <div className="flex items-center gap-3">
+          {!loading && !user && (
+            <Link
+              href="/login"
+              className="hidden rounded-full border border-ink-900 px-4 py-2 text-sm font-medium text-ink-900 transition hover:bg-ink-900 hover:text-oat-50 sm:inline-flex"
+            >
+              Sign in
+            </Link>
+          )}
+          {!loading && user && (
+            <button
+              onClick={async () => {
+                await fetch("/api/auth/logout", { method: "POST" });
+                window.location.reload();
+              }}
+              className="hidden rounded-full border border-ink-900 px-4 py-2 text-sm font-medium text-ink-900 transition hover:bg-ink-900 hover:text-oat-50 sm:inline-flex"
+            >
+              Sign out
+            </button>
+          )}
           <button className="hidden rounded-full border border-ink-900 px-4 py-2 text-sm font-medium text-ink-900 transition hover:bg-ink-900 hover:text-oat-50 sm:inline-flex">
             New Arrivals
           </button>
@@ -109,7 +147,7 @@ export default function HomePage() {
               <span className="rounded-full bg-oat-50/15 px-3 py-1 text-xs">5 looks</span>
             </div>
             <div className="mt-6 space-y-4">
-            {products.slice(1, 4).map((item) => (
+            {products.filter((item) => item.featured).slice(0, 3).map((item) => (
               <div key={item.id} className="flex items-center gap-4 rounded-2xl bg-oat-50/10 p-4">
                 <div className="h-14 w-14 rounded-2xl bg-oat-50/20"></div>
                 <div>
@@ -201,6 +239,16 @@ export default function HomePage() {
 
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="grid gap-6 md:grid-cols-2">
+            {loadingProducts && (
+              <div className="col-span-full rounded-2xl border border-oat-200 bg-white/70 p-6 text-sm text-ink-600">
+                Loading products...
+              </div>
+            )}
+            {!loadingProducts && filtered.length === 0 && (
+              <div className="col-span-full rounded-2xl border border-oat-200 bg-white/70 p-6 text-sm text-ink-600">
+                No products match your filters.
+              </div>
+            )}
             {filtered.map((product) => (
               <article
                 key={product.id}

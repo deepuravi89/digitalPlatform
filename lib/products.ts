@@ -12,6 +12,8 @@ export type Product = {
   details: string[];
   care: string[];
   images: string[];
+  featured?: boolean;
+  stock?: number;
 };
 
 export const products: Product[] = [
@@ -28,7 +30,8 @@ export const products: Product[] = [
     description: "A structured layer with softened edges and an oversized collar that frames the neckline.",
     details: ["Cotton twill", "Hidden snap placket", "Roomy sleeve"],
     care: ["Machine wash cold", "Hang dry", "Cool iron"],
-    images: ["/images/rev-01-1.jpg", "/images/rev-01-2.jpg"]
+    images: ["/images/rev-01-1.jpg", "/images/rev-01-2.jpg"],
+    featured: true
   },
   {
     id: "rev-02",
@@ -43,7 +46,8 @@ export const products: Product[] = [
     description: "An evening-ready knit with a gentle drape and waist contouring.",
     details: ["Stretch rib knit", "Midi length", "Sculpted waist"],
     care: ["Hand wash cold", "Lay flat to dry"],
-    images: ["/images/rev-02-1.jpg", "/images/rev-02-2.jpg"]
+    images: ["/images/rev-02-1.jpg", "/images/rev-02-2.jpg"],
+    featured: true
   },
   {
     id: "rev-03",
@@ -58,7 +62,8 @@ export const products: Product[] = [
     description: "A breathable linen pairing for warm days and slow weekends.",
     details: ["Linen blend", "Drawstring waist", "Softly structured shirt"],
     care: ["Machine wash cold", "Tumble dry low"],
-    images: ["/images/rev-03-1.jpg", "/images/rev-03-2.jpg"]
+    images: ["/images/rev-03-1.jpg", "/images/rev-03-2.jpg"],
+    featured: true
   },
   {
     id: "rev-04",

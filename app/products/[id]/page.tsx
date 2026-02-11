@@ -2,15 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AddToCartForm from "@/components/AddToCartForm";
-import { getProductById, products } from "@/lib/products";
+import { prisma } from "@/lib/prisma";
+import { mapProduct } from "@/lib/dbProducts";
 
-export function generateStaticParams() {
-  return products.map((product) => ({ id: product.id }));
-}
-
-export default function ProductPage({ params }: { params: { id: string } }) {
-  const product = getProductById(params.id);
-  if (!product) notFound();
+export default async function ProductPage({ params }: { params: { id: string } }) {
+  const row = await prisma.product.findUnique({ where: { id: params.id } });
+  if (!row) notFound();
+  const product = mapProduct(row);
 
   return (
     <div className="min-h-screen gradient-shell noise">

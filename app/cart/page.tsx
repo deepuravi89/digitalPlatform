@@ -2,12 +2,23 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/components/CartProvider";
-import { products } from "@/lib/products";
+import type { Product } from "@/lib/products";
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, clear } = useCart();
+  const { items, updateQuantity, removeItem, clear, user, loading } = useCart();
+
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    async function loadProducts() {
+      const response = await fetch("/api/products");
+      const data = await response.json();
+      setProducts(data.products || []);
+    }
+    loadProducts();
+  }, []);
 
   const cartItems = items.map((item) => {
     const product = products.find((entry) => entry.id === item.productId);
@@ -40,12 +51,22 @@ export default function CartPage() {
             <p className="text-xs uppercase tracking-[0.2em] text-ink-600">Cart</p>
           </div>
         </div>
-        <Link
-          href="/"
-          className="rounded-full border border-ink-900 px-4 py-2 text-sm font-medium text-ink-900 transition hover:bg-ink-900 hover:text-oat-50"
-        >
-          Continue Shopping
-        </Link>
+        <div className="flex items-center gap-3">
+          {!loading && !user && (
+            <Link
+              href="/login"
+              className="rounded-full border border-ink-900 px-4 py-2 text-sm font-medium text-ink-900 transition hover:bg-ink-900 hover:text-oat-50"
+            >
+              Sign in
+            </Link>
+          )}
+          <Link
+            href="/"
+            className="rounded-full border border-ink-900 px-4 py-2 text-sm font-medium text-ink-900 transition hover:bg-ink-900 hover:text-oat-50"
+          >
+            Continue Shopping
+          </Link>
+        </div>
       </header>
 
       <main className="mx-auto w-full max-w-6xl px-6 pb-20">
@@ -113,6 +134,11 @@ export default function CartPage() {
           </section>
 
           <aside className="space-y-4">
+            {!loading && !user && (
+              <div className="rounded-3xl border border-oat-200 bg-white/80 p-6 text-sm text-ink-700 shadow-soft">
+                Sign in to save your cart across devices.
+              </div>
+            )}
             <div className="rounded-3xl border border-oat-200 bg-white/80 p-6 shadow-soft">
               <p className="text-xs uppercase tracking-[0.2em] text-ink-500">Order Summary</p>
               <div className="mt-4 flex items-center justify-between text-sm text-ink-700">
